@@ -23,13 +23,14 @@ DB_URL = os.getenv("DATABASE_URL")
 
 class EmailState(StateGraph):
     email_id :str
+    email_thread_id :str
     sender :str
     subject :str
     body :str
     
     category :str
     priority :str
-    action :str
+    action :Literal['CREATE_CRM_LEAD', 'CREATE_SUPPORT_TICKET', 'CREATE_PROJECT', 'SCHEDULE_MEETING','SEND_QUOTATION']
     confidence :float
     requires_human_intervention :bool
     reason: str
@@ -59,7 +60,7 @@ def human_approval(state: EmailState):
 
 def execute_action(state: EmailState):
  
-    WEBHOOK_URL = 'http://localhost:5678/webhook/39e7c9a8-f0e0-42cc-86af-5e54d67094b7'
+    WEBHOOK_URL = 'https://vendor-such-fiction.ngrok-free.dev/webhook/9b7f42de-3f60-44cc-b59b-e55579cecd37'
 
     response = requests.post(WEBHOOK_URL, json=state)
     

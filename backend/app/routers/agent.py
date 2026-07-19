@@ -14,18 +14,19 @@ workflow = build_graph()
 @router.post("/api/process_email/{email_id}")
 def process_email(email_id: str, db: Annotated[Session, Depends(get_db)]):
     
-    email = db.query(Email).filter(Email.id == email_id).first()
+    email = db.query(Email).filter(Email.email_id == email_id).first()
     if not email:
         raise HTTPException(status_code=404, detail="Email not found")
     
     config={
         "configurable":{
-            "thread_id": f"email_{email.id}"
+            "thread_id": f"email_{email.email_id}"
         }
     }
     
     res = workflow.invoke({
-        "email_id": email.id,
+        "email_id": email.email_id,
+        "email_thread_id": email.thread_id,
         "sender": email.sender,
         "subject": email.subject,
         "body": email.body,
@@ -58,7 +59,9 @@ def process_email(email_id: str, db: Annotated[Session, Depends(get_db)]):
         }
 
         add_aproval_request(
-            email_id=email.id,
+            email_id=email.email_id,
+            thread_id=email.thread_id,
+            sender=email.sender,
             db=db,
             payload=payload
         )
@@ -67,7 +70,9 @@ def process_email(email_id: str, db: Annotated[Session, Depends(get_db)]):
 
         return {
             "message": "Waiting for human approval, interupted request",
-            "email_id": email.id,
+            "email_id": email.email_id,
+            "thread_id": email.thread_id,
+            "sender": email.sender,
             "status": email.status
         }
     
@@ -75,4 +80,4 @@ def process_email(email_id: str, db: Annotated[Session, Depends(get_db)]):
     
     db.commit()
     
-    return {"message": "Email execution successfull", "email_id": email.id,"status": email.status}
+    return {"message": "Email execution successfull", "email_id": email.email_id,"thread_id": email.thread_id,"sender": email.sender,"status": email.status}

@@ -17,6 +17,8 @@ workflow = build_graph()
 def webhook_endpoint(payload: EmailRequest, db: Annotated[Session, Depends(get_db)]):
     
     data = Email(
+        email_id=payload.email_id,
+        thread_id=payload.thread_id,
         sender=payload.sender,
         subject=payload.header,
         body=payload.body,
@@ -27,8 +29,11 @@ def webhook_endpoint(payload: EmailRequest, db: Annotated[Session, Depends(get_d
     db.refresh(data)
     return {
         "message": "Webhook received successfully",
-        "email_id": data.id,
+        "email_id": data.email_id,
+        "thread_id": data.thread_id,
+        "sender": data.sender,
     }
+    
     
 
 

@@ -6,7 +6,8 @@ from app.database import Base
 class Email(Base):
     __tablename__ = "emails"
 
-    id = Column(String, primary_key=True, index=True,default=lambda: str(uuid4()))
+    email_id = Column(String, primary_key=True, index=True)
+    thread_id = Column(String, primary_key=True, index=True)
     sender = Column(String, index=True)
     subject = Column(String, index=True)
     body = Column(String)
@@ -27,6 +28,8 @@ class Aproval(Base):
 
     id = Column(String, primary_key=True, index=True,default=lambda: str(uuid4()))
     email_id = Column(String, index=True)
+    thread_id = Column(String, index=True)
+    sender = Column(String, index=True)
     body = Column(String, default="")
     category = Column(String, default="")
     priority = Column(String, default="")
