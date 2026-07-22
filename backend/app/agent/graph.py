@@ -74,7 +74,7 @@ def execute_action(state: EmailState):
     if state['action'] == ['NO_ACTION']:
         return state
  
-    WEBHOOK_URL = 'https://vendor-such-fiction.ngrok-free.dev/webhook/9b7f42de-3f60-44cc-b59b-e55579cecd37'
+    WEBHOOK_URL = os.getenv("WEBHOOK_URL")
     requests.post(WEBHOOK_URL, json=state)
     return state
 

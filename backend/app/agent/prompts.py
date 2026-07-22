@@ -122,7 +122,7 @@ Required JSON format:
 {{
     "category": "string",
     "priority": "critical|high|medium|low",
-    "action": ["CREATE_CRM_LEAD|CREATE_SUPPORT_TICKET|CREATE_PROJECT|SCHEDULE_MEETING|SEND_QUOTATION|NO_ACTION"],
+    "action": ["CREATE_CRM_LEDGER|CREATE_SUPPORT_TICKET|SCHEDULE_MEETING|SEND_QUOTATION|NO_ACTION"],
     "requires_human": true,
     "confidence": 0.0,
     "reason": "short explanation",

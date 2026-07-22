@@ -1,0 +1,25 @@
+# Web & API
+fastapi
+uvicorn
+
+# AI & Agents
+langchain
+langchain-core
+langchain-openai
+langchain-community
+langgraph
+langsmith
+langgraph-checkpoint-postgres
+
+# Database & Storage
+pydantic
+sqlalchemy
+psycopg[binary]
+psycopg-pool
+aiosqlite
+
+# Utilities
+python-dotenv
+httpx
+pydantic-settings
+pydantic[email]
