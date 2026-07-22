@@ -10,7 +10,7 @@ from app.agent.models import email_decision
 from app.agent.prompts import analysis_prompt
 
 import requests
-from typing import Literal
+from typing import Literal,List
 
 from dotenv import load_dotenv
 import os
@@ -30,10 +30,11 @@ class EmailState(StateGraph):
     
     category :str
     priority :str
-    action :Literal['CREATE_CRM_LEAD', 'CREATE_SUPPORT_TICKET', 'CREATE_PROJECT', 'SCHEDULE_MEETING','SEND_QUOTATION']
+    action: List[Literal['CREATE_CRM_LEDGER', 'CREATE_SUPPORT_TICKET', 'SCHEDULE_MEETING', 'SEND_QUOTATION','NO_ACTION']]
     confidence :float
     requires_human_intervention :bool
     reason: str
+    note : str
     approval : dict
     
     
@@ -50,20 +51,31 @@ def human_approval(state: EmailState):
     
     decision = interrupt(
         {
-        'message':"waiting for human approval",
-        'email_id':state['email_id'],
-        "action":state['action']
-    })
-    
-    return {'approval':decision}
+            'message':"waiting for human approval",
+            'email_id':state['email_id'],
+            "action":state['action']
+        }
+    )
+
+
+    human_decision = decision["approval"]
+
+    return {
+        "approval": human_decision["approval"],
+        "action": human_decision["action"],
+        "priority": human_decision["priority"],
+        "note": human_decision["note"]
+    }
 
 
 def execute_action(state: EmailState):
+
+    
+    if state['action'] == ['NO_ACTION']:
+        return state
  
     WEBHOOK_URL = 'https://vendor-such-fiction.ngrok-free.dev/webhook/9b7f42de-3f60-44cc-b59b-e55579cecd37'
-
-    response = requests.post(WEBHOOK_URL, json=state)
-    
+    requests.post(WEBHOOK_URL, json=state)
     return state
 
 

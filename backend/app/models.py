@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime,Boolean
+from sqlalchemy import Column, Integer, String, DateTime,Boolean,ARRAY
 from datetime import datetime
 from uuid import uuid4
 from app.database import Base
@@ -17,7 +17,7 @@ class Email(Base):
 
     category = Column(String, default="")
     priority = Column(String, default="")
-    action = Column(String, default="")
+    action = Column(ARRAY(String), default=[])
     confidence = Column(String, default="")
     requires_human_intervention = Column(Boolean, default=False)
     reason = Column(String, default="")
@@ -33,7 +33,7 @@ class Aproval(Base):
     body = Column(String, default="")
     category = Column(String, default="")
     priority = Column(String, default="")
-    action = Column(String, default="")
+    action = Column(ARRAY(String), default=[])
     reason = Column(String, default="")
     approval_status = Column(String, default="pending")
     decision_by = Column(String, default="")

@@ -23,7 +23,7 @@ def get_panding_approval(db: Annotated[Session, Depends(get_db)]):
 
 
 @router.post("/api/approve/{approval_id}")
-def approve_request(approval_id: str, db: Annotated[Session, Depends(get_db)]):
+def approve_request(approval_id: str, db: Annotated[Session, Depends(get_db)],payload: dict):
     approval_request = db.query(Aproval).filter(Aproval.id == approval_id).first()
     
     if not approval_request:
@@ -31,12 +31,20 @@ def approve_request(approval_id: str, db: Annotated[Session, Depends(get_db)]):
     
     config = {"configurable": {"thread_id": f"email_{approval_request.email_id}"}}
     
+    human_decision = {
+        "approval": "approved",
+        "action": payload.get("action", approval_request.action),
+        "priority": payload.get("priority", approval_request.priority),
+        "note": payload.get("note", "")
+    }
+
     res = workflow.invoke(
-        Command(resume={'approval': 'approved'})
+        Command(resume={'approval': human_decision})
         ,config=config
     )
         
-    
+    approval_request.action = human_decision["action"]
+    approval_request.priority = human_decision["priority"]
     approval_request.approval_status = "approved"
     approval_request.decision_by = "admin" 
     approval_request.decision_reason = "Task needed human intervention"
@@ -47,7 +55,7 @@ def approve_request(approval_id: str, db: Annotated[Session, Depends(get_db)]):
 
 
 @router.post("/api/reject/{approval_id}")
-def reject_request(approval_id: str, db: Annotated[Session, Depends(get_db)]):
+def reject_request(approval_id: str, db: Annotated[Session, Depends(get_db)],payload: dict):
     approval_request = db.query(Aproval).filter(Aproval.id == approval_id).first()
     
     if not approval_request:
@@ -55,9 +63,15 @@ def reject_request(approval_id: str, db: Annotated[Session, Depends(get_db)]):
     
     
     config = {"configurable": {"thread_id": f"email_{approval_request.email_id}"}}
-    
+    human_decision = {
+        "approval": "rejected",
+        "action": payload.get("action", approval_request.action),
+        "priority": payload.get("priority", approval_request.priority),
+        "note": payload.get("note", "")
+    }
+
     res = workflow.invoke(
-        Command(resume={'approval': 'rejected'})
+        Command(resume={'approval': human_decision})
         ,config=config
     )
         

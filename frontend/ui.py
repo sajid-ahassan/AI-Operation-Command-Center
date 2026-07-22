@@ -44,14 +44,97 @@ else:
             # Align buttons side-by-side on the left without stretching them too wide
             btn_col1, btn_col2, _ = st.columns([1, 1, 4])
             
+            # Available actions
+            available_actions = [
+                'CREATE_CRM_LEDGER', 'CREATE_SUPPORT_TICKET', 'SCHEDULE_MEETING', 'SEND_QUOTATION','NO_ACTION'
+            ]
+
+            available_priorities = [
+                "critical",
+                "high",
+                "medium",
+                "low"
+            ]
+
+
+            st.write("---")
+
+            # Human decision controls
+            selected_actions = st.multiselect(
+                "Select Final Action(s)",
+                options=available_actions,
+                default=approval["action"] if isinstance(approval["action"], list) else [approval["action"]],
+                key=f"action_{approval['id']}"
+            )
+
+
+            selected_priority = st.selectbox(
+                "Select Final Priority",
+                options=available_priorities,
+                index=available_priorities.index(
+                    approval["priority"].lower()
+                ) if approval["priority"].lower() in available_priorities else 2,
+                key=f"priority_{approval['id']}"
+            )
+
+
+            review_note = st.text_area(
+                "Reviewer Note",
+                placeholder="Why are you approving or modifying this request?",
+                key=f"note_{approval['id']}"
+            )
+
+
+            st.write("")
+
+
+            btn_col1, btn_col2, _ = st.columns([1, 1, 4])
+
+
             with btn_col1:
-                if st.button("Approve", key=f"app_{approval['id']}", use_container_width=True):
-                    result = post_request(f"/api/approve/{approval['id']}", {})
-                    st.success(f"Request {approval['id']} Approved")
-                    st.rerun() # Refresh the page immediately to remove the processed item
-                    
+                if st.button(
+                    "Approve",
+                    key=f"app_{approval['id']}",
+                    use_container_width=True
+                ):
+
+                    payload = {
+                        "action": selected_actions,
+                        "priority": selected_priority,
+                        "note": review_note
+                    }
+
+                    result = post_request(
+                        f"/api/approve/{approval['id']}",
+                        payload
+                    )
+
+                    st.success(
+                        f"Request {approval['id']} Approved"
+                    )
+
+                    st.rerun()
+
+
             with btn_col2:
-                if st.button("Reject", key=f"rej_{approval['id']}", type="primary", use_container_width=True):
-                    result = post_request(f"/api/reject/{approval['id']}", {})
-                    st.error(f"Request {approval['id']} Rejected")
-                    st.rerun() # Refresh the page immediately to remove the processed item
+                if st.button(
+                    "Reject",
+                    key=f"rej_{approval['id']}",
+                    type="primary",
+                    use_container_width=True
+                ):
+
+                    payload = {
+                        "note": review_note
+                    }
+
+                    result = post_request(
+                        f"/api/reject/{approval['id']}",
+                        payload
+                    )
+
+                    st.error(
+                        f"Request {approval['id']} Rejected"
+                    )
+
+                    st.rerun()

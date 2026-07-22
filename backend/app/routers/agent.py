@@ -52,6 +52,8 @@ def process_email(email_id: str, db: Annotated[Session, Depends(get_db)]):
         email.status = "awaiting_human_approval"
         payload = {
             "body": res['body'],
+            "sender": res['sender'],
+            "thread_id": res['email_thread_id'],
             "category": res['category'],
             "priority": res['priority'],
             "action": res['action'],
@@ -59,9 +61,7 @@ def process_email(email_id: str, db: Annotated[Session, Depends(get_db)]):
         }
 
         add_aproval_request(
-            email_id=email.email_id,
-            thread_id=email.thread_id,
-            sender=email.sender,
+            email_id = res['email_id'],
             db=db,
             payload=payload
         )
